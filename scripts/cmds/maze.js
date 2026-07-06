@@ -19,7 +19,7 @@ function generateMazeImage(difficulty = 15, grid = null, cols = null, highlightP
     const base = 10;
     const scale = 0.4;
     const size = Math.floor(base + difficulty * scale);
-
+    
     let rows;
     const cellSize = 30;
 
@@ -191,13 +191,13 @@ function generateMazeImage(difficulty = 15, grid = null, cols = null, highlightP
             const cell = progressPath[i];
             const cx = cell.x * cellSize + cellSize / 2;
             const cy = cell.y * cellSize + cellSize / 2;
-
+            
             if (i === 0) ctx.moveTo(cx, cy);
             else ctx.lineTo(cx, cy);
         }
         ctx.stroke();
     }
-
+    
     if (highlightPath && highlightPath.length > 1) {
         ctx.strokeStyle = "rgba(76,175,80,0.7)";
         ctx.lineWidth = 6;
@@ -209,7 +209,7 @@ function generateMazeImage(difficulty = 15, grid = null, cols = null, highlightP
             const cell = highlightPath[i];
             const cx = cell.x * cellSize + cellSize / 2;
             const cy = cell.y * cellSize + cellSize / 2;
-
+            
             if (i === 0) ctx.moveTo(cx, cy);
             else ctx.lineTo(cx, cy);
         }
@@ -227,7 +227,7 @@ function generateMazeImage(difficulty = 15, grid = null, cols = null, highlightP
             const cell = wrongPath[i];
             const cx = cell.x * cellSize + cellSize / 2;
             const cy = cell.y * cellSize + cellSize / 2;
-
+            
             if (i === 0) ctx.moveTo(cx, cy);
             else ctx.lineTo(cx, cy);
         }
@@ -325,7 +325,7 @@ function getPathFromCode(code, grid, cols, startCell) {
         if (move === "r") nx++;
 
         const idx = index(nx, ny);
-
+        
         if (idx === -1) return path;
 
         const next = grid[idx];
@@ -379,9 +379,9 @@ exports.onStart = async ({ args, message, event, commandName }) => {
     }
 
     const data = generateMazeImage(difficultyLevel);
-
+    
     const imagePath = path.join(__dirname, global.utils.randomString(4) + ".png");
-
+    
     const writeStream = fs.createWriteStream(imagePath);
     data.image.pipe(writeStream);
 
@@ -391,7 +391,7 @@ exports.onStart = async ({ args, message, event, commandName }) => {
         body: `🧩 Solve the maze! Difficulty: ${difficultyMessage}\n\n• Send your path in one message (e.g., ➡️➡️⬇️...)\n• A is the start, B is the end.\n• You have 3 attempts for wrong answers.`,
         attachment: fs.createReadStream(imagePath)
     });
-
+    
     fs.unlinkSync(imagePath);
 
     global.GoatBot.onReply.set(reply.messageID, {
@@ -405,7 +405,7 @@ exports.onStart = async ({ args, message, event, commandName }) => {
         currentProgress: "",
         currentPosition: data.grid[0],
         // Store the final calculated difficulty level for reward scaling
-        finalDifficulty: difficultyLevel
+        finalDifficulty: difficultyLevel 
     });
 };
 
@@ -415,7 +415,7 @@ exports.onReply = async ({ message, event, Reply, usersData }) => {
 
     const userEmoji = event.body.trim();
     const userCode = trans(userEmoji);
-
+    
     if (!/^[urdl⬆️➡️⬇️⬅️]+$/i.test(userEmoji)) {
         return message.reply(`Please only use valid move emojis (⬆️ ➡️ ⬇️ ⬅️) or their corresponding letters (u, r, d, l) in one sequence.`);
     }
@@ -433,9 +433,9 @@ exports.onReply = async ({ message, event, Reply, usersData }) => {
     if (isCorrectContinuation && userPath.length === solutionPath.length) {
         // Dynamic Reward Calculation: Base 20000 / 8 * finalDifficulty
         // Minimum reward is set to 2500 (1 * 2500)
-        const baseCoinPerLevel = 2500;
-        const rewardAmount = Math.max(2500, Math.floor(baseCoinPerLevel * (finalDifficulty || 8)));
-
+        const baseCoinPerLevel = 2500; 
+        const rewardAmount = Math.max(2500, Math.floor(baseCoinPerLevel * (finalDifficulty || 8))); 
+        
         try {
             const userData = await usersData.get(event.senderID);
             await usersData.set(event.senderID, {
@@ -443,9 +443,9 @@ exports.onReply = async ({ message, event, Reply, usersData }) => {
                 exp: userData.exp,
                 data: userData.data
             });
-
+            
             const data = generateMazeImage(15, grid, cols, solutionPath, null);
-
+            
             const imagePath = path.join(__dirname, global.utils.randomString(4) + ".png");
             const writeStream = fs.createWriteStream(imagePath);
             data.image.pipe(writeStream);
@@ -463,7 +463,7 @@ exports.onReply = async ({ message, event, Reply, usersData }) => {
         }
         return;
     }
-
+    
     if (isCorrectContinuation) {
         // CORRECT CONTINUATION
         const currentCell = userPath[userPath.length - 1];
@@ -472,7 +472,7 @@ exports.onReply = async ({ message, event, Reply, usersData }) => {
         Reply.attempts = 0;
 
         const data = generateMazeImage(5, grid, cols, null, null, currentCell, userPath);
-
+        
         const imagePath = path.join(__dirname, global.utils.randomString(4) + ".png");
         const writeStream = fs.createWriteStream(imagePath);
         data.image.pipe(writeStream);
@@ -485,17 +485,17 @@ exports.onReply = async ({ message, event, Reply, usersData }) => {
             attachment: fs.createReadStream(imagePath)
         });
         fs.unlinkSync(imagePath);
-
+        
         global.GoatBot.onReply.set(newReply.messageID, Reply);
         return;
     }
-
+    
     // WRONG PATH/MOVE
     Reply.attempts++;
     if (Reply.attempts >= 3) {
         // GAME OVER
         const data = generateMazeImage(15, grid, cols, solutionPath, userPath);
-
+        
         const imagePath = path.join(__dirname, global.utils.randomString(4) + ".png");
         const writeStream = fs.createWriteStream(imagePath);
         data.image.pipe(writeStream);

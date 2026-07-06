@@ -1,60 +1,74 @@
-const fs = require("fs");
-const path = require("path");
-
 module.exports = {
   config: {
     name: "owner",
-    version: "0.0.7",
-    author: "Azadx69x",
+    version: 2.3,
+    author: "〲 T A N J I L ツ",
+    longDescription: "Info about bot and owner",
     category: "owner",
-    guide: { en: "view owner info." },
-    usePrefix: true
+    guide: {
+      en: "{p}{n}",
+    },
   },
 
-  sentThreads: new Map(),
+  onStart: async function ({ api, event, usersData, message }) {
+    // Primary & Backup Image
+    const mainImg = "https://files.catbox.moe/b2yna5kbctsvlk34.jpg"; 
+    const fallbackImg = "https://scontent.xx.fbcdn.net/v/t1.15752-9/537397354_1980840699345865_2351462868400401293_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeELEqegXfQ4KYDcfhxBeTOQ8Sc-8NlEdSTxJz7w2UR1JNU_ulrw4ibTJWIFZC7qozxdd28C1XQ63DB782_ToWCc&_nc_ohc=Esrv3yEutLMQ7kNvwEQT-7K&_nc_oc=Adl4QxI9HvtgZvHZznG2sj2I-BKlOq-nyQh0zEvkzbMEVnre7bHSgXlSpg384MVJKso&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.xx&oh=03_Q7cD3AHQtbJtqIVF2z5_YpsUMvsuuJlLjkLHZvqv8xMhH5V-0A&oe=68D18740"; // backup
 
-  onStart: async function ({ api, event, message }) {
-    const threadID = event.threadID;
-
-    if (this.sentThreads.has(threadID)) return;
-    this.sentThreads.set(threadID, true);
-
-    const ownerInfo = {
-      name: "𝐦𝐨𝐡𝐚𝐦𝐦𝐚𝐝 𝐚𝐳𝐚𝐝",
-      nick: "𝐚𝐳𝐚𝐝𝐱𝟔𝟗𝐱",
-      age: "𝟏𝟖",
-      gender: "𝐌𝐚𝐥𝐞",
-      from: "𝐁𝐡𝐨𝐥𝐚,𝐁𝐚𝐧𝐠𝐥𝐚𝐝𝐞𝐬𝐡",
-      religion: "𝐈𝐬𝐥𝐚𝐦",
-      status: "𝐒𝐢𝐧𝐠𝐥𝐞",
-      dream: "😛 𝐛𝐨𝐮",
-      hobby: "𝐆𝐚𝐦𝐢𝐧𝐠,𝐜𝐨𝐝𝐢𝐧𝐠",
-    };
-
-    const msg = `╔═════ ∘◦ ☆ ◦∘ ═════╗
-    🎀  𝐎𝐖𝐍𝐄𝐑  𝐈𝐍𝐅𝐎  🎀
- ━━━━━━━━━━━━━━━━━━
-  🏷️ 𝐍𝐚𝐦𝐞 : ${ownerInfo.name}
-  🏷️ 𝐍𝐢𝐜𝐤𝐧𝐚𝐦𝐞 : ${ownerInfo.nick}
-  🎂 𝐀𝐠𝐞 : ${ownerInfo.age}
-  ⚧️ 𝐆𝐞𝐧𝐝𝐞𝐫 : ${ownerInfo.gender}
-  🌍 𝐅𝐫𝐨𝐦 : ${ownerInfo.from}
-  🕋 𝐑𝐞𝐥𝐢𝐠𝐢𝐨𝐧 : ${ownerInfo.religion}
-  ❤️ 𝐒𝐭𝐚𝐭𝐮𝐬 : ${ownerInfo.status}
-  😶 𝐃𝐫𝐞𝐚𝐦 : ${ownerInfo.dream}
-  🎯 𝐇𝐨𝐛𝐛𝐲 : ${ownerInfo.hobby}
- ━━━━━━━━━━━━━━━━━━
-  💫 𝐓𝐡𝐚𝐧𝐤 𝐲𝐨𝐮 𝐟𝐨𝐫 𝐰𝐚𝐭𝐜𝐡𝐢𝐧𝐠
-  📝 𝐀𝐧𝐲 𝐩𝐫𝐨𝐛𝐥𝐞𝐦? 𝐓𝐚𝐥𝐤 𝐭𝐨 𝐚𝐝𝐦𝐢𝐧.
-╚═════ ∘◦ ☆ ◦∘ ═════╝`;
-
+    let attachment;
     try {
-      await message.reply(msg);
+      attachment = await global.utils.getStreamFromURL(mainImg);
     } catch (e) {
-      console.error("chudling pong:", e);
-      await message.reply("❌ 𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐨𝐰𝐧𝐞𝐫 𝐢𝐧𝐟𝐨.");
+      attachment = await global.utils.getStreamFromURL(fallbackImg);
     }
 
-    setTimeout(() => this.sentThreads.delete(threadID), 300000);
+    const id = event.senderID;
+    const userData = await usersData.get(id);
+    const name = userData.name;
+    const mentions = [{ id, tag: name }];
+
+    // Owner & Bot Info
+    const info = {
+      botName: "ʸᵒᵘʳ Cᴀɴᴅʏ🍓🍒",
+      prefix: "/",
+      ownerName: "〲 T A N J I L ツ",
+      uid: "61553871124089",
+      username: "tanjil",
+      gender: "Male",
+      number: "01749315157",
+      age: "19 ±",
+      relationship: "Single",
+      study: "HSC",
+      location: "Dhaka, Bangladesh",
+      religion: "Islam"
+    };
+
+    const body = `⎯ [(🌷) OWNER INFO (🌷)] ⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+Name     : ${info.ownerName}
+UID      : ${info.uid}
+U.n.     : ${info.username}
+
+Age      : ${info.age}
+Study    : ${info.study}
+Status   : ${info.relationship}
+
+Number   : ${info.number}
+House    : ${info.location}
+Religion : ${info.religion}
+
+⎯⎯⎯⎯ [ 🔧 BOT INFO ] ⎯⎯⎯⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+🤖 Bot Name : ${info.botName}
+📌 Prefix   : ${info.prefix}
+👑 Author   : ${info.ownerName}`;
+
+    message.reply({
+      body,
+      attachment,
+      mentions
+    });
   }
 };

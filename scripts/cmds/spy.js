@@ -1,25 +1,27 @@
 module.exports = {
   config: {
     name: "spy",
-    version: "0.0.7",
-    role: 0,
-    author: "Azadx69x",
-    description: "Get user information and profile photo",
-    category: "information",
+    version: "4.0",
+    author: "T A N J I L 🎀",
     countDown: 5,
+    role: 0,
+    shortDescription: "View detailed Facebook profile info",
+    longDescription: "Get a full Facebook user's profile info including name, UID, username, gender, birthday, relationship status, followers count, and more.",
+    category: "image",
   },
 
-  onStart: async function ({ event, message, usersData, api, args, threadsData }) {
+  onStart: async function ({ event, message, usersData, api, args }) {
     try {
-      const uid1 = event.senderID;
-      const uid2 = Object.keys(event.mentions)[0];
-      let uid;
+      const uidSender = event.senderID;
+      const uidMentioned = Object.keys(event.mentions)[0];
+      let uid = null;
 
+      // Extract UID from args, reply, mention, or fallback to sender
       if (args[0]) {
         if (/^\d+$/.test(args[0])) {
           uid = args[0];
         } else {
-          const match = args[0].match(/profile\.php\?id=(\d+)/);
+          const match = args[0].match(/(?:id=|\/)(\d{5,})/);
           if (match) uid = match[1];
         }
       }
@@ -27,121 +29,80 @@ module.exports = {
       if (!uid) {
         uid = event.type === "message_reply"
           ? event.messageReply.senderID
-          : uid2 || uid1;
+          : uidMentioned || uidSender;
       }
 
-      let userInfo;
-      try {
-        userInfo = await api.getUserInfo(uid);
-      } catch (e) {
-        return message.reply("❌ | Failed to fetch user information.");
-      }
-
-      let avatarUrl;
-      try {
-        avatarUrl = await usersData.getAvatarUrl(uid);
-      } catch (e) {
-        avatarUrl = null;
-      }
-
-      const uInfo = userInfo[uid] || {};
-
-      let gender = "Unknown";
-      let genderEmoji = "🤷‍♂️";
-
-      if (uInfo.gender !== undefined) {
-        const g = String(uInfo.gender).toLowerCase();
-        if (g === "female" || g === "f" || g === "1") { 
-          gender = "Female"; 
-          genderEmoji = "🙋‍♀️";
-        } else if (g === "male" || g === "m" || g === "2") { 
-          gender = "Male"; 
-          genderEmoji = "🙋‍♂️";
-        }
-      }
-
-      const genderText = `${genderEmoji} 𝐆𝐞𝐧𝐝𝐞𝐫: ${gender}`;
-
-      const vipList = global.GoatBot?.config?.vipuser || 
-                      global.GoatBot?.config?.vipUser || 
-                      global.GoatBot?.config?.vip || 
-                      [];
-      const isVip = Array.isArray(vipList) && vipList.includes(uid);
-      const vipEmoji = isVip ? "✅ 𝐘𝐞𝐬" : "❌ 𝐍𝐨";
-
-      let money = 0, exp = 0, level = 1, userData = {};
-      try {
-        userData = await usersData.get(uid) || {};
-        money = userData.money || 0;
-        exp = userData.exp || 0;
-        level = userData.level || 1;
-      } catch (e) {}
-
-      let joinedDate = "N/A";
-      try {
-        const moment = require("moment");
-        joinedDate = moment(userData.createdAt || Date.now()).format("DD/MM/YYYY");
-      } catch (e) {
-        joinedDate = "N/A";
-      }
-
-      let allUser = [], rank = "?", moneyRank = "?";
-      try {
-        allUser = await usersData.getAll();
-        rank = allUser.sort((a, b) => (b.exp || 0) - (a.exp || 0)).findIndex(u => u.userID === uid) + 1;
-        moneyRank = allUser.sort((a, b) => (b.money || 0) - (a.money || 0)).findIndex(u => u.userID === uid) + 1;
-      } catch (e) {}
-
-      const vanity = uInfo.vanity || "None";
-      const isFriend = uInfo.isFriend ? "✅ 𝐘𝐞𝐬" : "❎ 𝐍𝐨";
-      const isBirthday = uInfo.isBirthday ? "🎂 𝐓𝐨𝐝𝐚𝐲!" : "❌ 𝐍𝐨";
-
-      let isAdmin = "N/A";
-      if (event.threadID) {
-        try {
-          const threadInfo = await threadsData.get(event.threadID);
-          if (threadInfo?.adminIDs) {
-            isAdmin = threadInfo.adminIDs.includes(uid) ? "✅ 𝐘𝐞𝐬" : "❎ 𝐍𝐨";
-          }
-        } catch (e) {}
-      }
-
-      const userInformation = `
-╭━〔 ✦ 𝐔𝐒𝐄𝐑 𝐈𝐍𝐅𝐎 ✦ 〕━⬣
-┃ 👤 𝐍𝐚𝐦𝐞: ${uInfo.name || "𝐔𝐧𝐤𝐧𝐨𝐰𝐧"}
-┃  ${genderText}
-┃ 🆔 𝐔𝐈𝐃: ${uid}
-┃ 🔖 𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞: ${vanity}
-┃ 🎂 𝐁𝐢𝐫𝐭𝐡𝐝𝐚𝐲 𝐓𝐨𝐝𝐚𝐲: ${isBirthday}
-┃ 👫 𝐅𝐫𝐢𝐞𝐧𝐝 𝐰𝐢𝐭𝐡 𝐛𝐨𝐭: ${isFriend}
-┃ 👑 𝐕𝐈𝐏 𝐔𝐬𝐞𝐫?: ${vipEmoji}
-┃ 📅 𝐉𝐨𝐢𝐧𝐞𝐝: ${joinedDate}
-┣━〔 ✦ 𝐒𝐓𝐀𝐓𝐒 ✦ 〕━⬣
-┃ 💰 𝐌𝐨𝐧𝐞𝐲: $${money.toLocaleString()}
-┃ ⭐ 𝐄𝐗𝐏: ${exp.toLocaleString()}
-┃ 🎯 𝐋𝐞𝐯𝐞𝐥: ${level}
-┃ 🏆 𝐑𝐚𝐧𝐤: #${rank}/${allUser.length || "?"}
-┃ 💵 𝐌𝐨𝐧𝐞𝐲 𝐑𝐚𝐧𝐤: #${moneyRank}/${allUser.length || "?"}
-┣━〔 ✦ 𝐆𝐑𝐎𝐔𝐏 ✦ 〕━⬣
-┃ 👑 𝐀𝐝𝐦𝐢𝐧 𝐡𝐞𝐫𝐞: ${isAdmin}
-╰━━━━━━━━━━━━━━━━⬣`;
-
-      let attachments = [];
-      if (avatarUrl) {
-        try {
-          const stream = await global.utils.getStreamFromURL(avatarUrl);
-          if (stream) attachments.push(stream);
-        } catch (e) {}
-      }
-
-      await message.reply({
-        body: userInformation,
-        attachment: attachments.length > 0 ? attachments : undefined
+      // Fetch Facebook user info
+      const userInfo = await new Promise((resolve, reject) => {
+        api.getUserInfo(uid, (err, result) => {
+          if (err || !result || !result[uid]) return reject("User not found or private profile.");
+          resolve(result);
+        });
       });
 
-    } catch (error) {
-      console.error("Spy command error:", error);
-      return message.reply("❌ | An error occurred.");
+      const user = userInfo[uid];
+      const data = await usersData.get(uid);
+      const avatarUrl = await usersData.getAvatarUrl(uid);
+      const senderInfo = await usersData.get(uidSender);
+      const senderName = senderInfo?.name || "User";
+
+      // Info extraction with fallbacks
+      const name = user.name || "Unknown";
+      const gender = user.gender === 1 ? "Female" : user.gender === 2 ? "Male" : "Unknown";
+      const birthday = user.isBirthday ? "Yes (Today)" : "Not available";
+      const isFriend = user.isFriend ? "Yes" : "No";
+      const profileUrl = `https://www.facebook.com/${uid}`;
+      const username = user.vanity || "Not set";
+      const location = user.location || "Private or Unknown";
+      const relationship = user.relationship_status || "Not set";
+      const followers = user.followers || "Hidden";
+      const creationYear = user.created_time ? new Date(user.created_time * 1000).getFullYear() : "Unknown";
+
+      const balance = data?.money || 0;
+      const exp = data?.exp || 0;
+      const level = Math.floor(0.1 * Math.sqrt(exp));
+
+      const threadInfo = await api.getThreadInfo(event.threadID);
+      const nickname = threadInfo?.nicknames?.[uid] || "Not set";
+
+      const allUsers = await usersData.getAll();
+      const sortedUsers = allUsers
+        .filter(user => typeof user.money === 'number')
+        .sort((a, b) => b.money - a.money);
+      const userRankIndex = sortedUsers.findIndex(user => user.userID === uid);
+      const rankPosition = userRankIndex !== -1 ? `#${userRankIndex + 1}` : "Unranked";
+
+      // Final message
+      const profileInfo = 
+`╭─❏ 【 𝑼𝑺𝑬𝑹 𝑰𝑵𝑭𝑶 】 ❏─────
+│ 🆔 Name      : ${name}
+│ 🔖 UID       : ${uid}
+│ 👤 Username  : ${username}
+│
+│ 🚻 Gender    : ${gender}
+│ 🎂 Birthday  : ${birthday}
+│ 💞 Relation  : single 
+│
+│ 🤝 Friend    : ${isFriend}
+│ 🔗 Profile   : ${profileUrl}
+╰─────────────────────────────⟡
+
+╭─❏ 【 𝑴𝑶𝑹𝑬 𝑰𝑵𝑭𝑶 】 ❏─────
+│ 💰 Balance   : $${balance}
+│ ✨ EXP       : ${exp}
+│ 🏅 Level     : ${level}
+│ 📊 Rank      : ${rankPosition}
+│ 🎭 Nickname  : ${nickname}
+╰─────────────────────────────⟡`;
+
+      return message.reply({
+        body: profileInfo,
+        attachment: await global.utils.getStreamFromURL(avatarUrl)
+      });
+
+    } catch (err) {
+      console.error("SPY Command Error:", err);
+      return message.reply("❌ Failed to fetch user data. The profile might be private, deactivated, or an invalid UID.");
     }
-  },
+  }
 };

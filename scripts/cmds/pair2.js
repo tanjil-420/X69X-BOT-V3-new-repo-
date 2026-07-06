@@ -2,8 +2,7 @@ const axios = require("axios");
 const fs = require("fs-extra");
 module.exports = {
   config: {
-    name: "pair",
-    author: "T A N J I L 🎀",
+    name: "pair2",
     countDown: 10,
     role: 0,
     shortDescription: {
@@ -14,7 +13,7 @@ module.exports = {
     },
     category: "LOVE",
     guide: {
-      en: "{pn} [tag someone or leave blank] and {pn} @mention ( I will make your paring)",
+      en: "{pn} [tag someone or leave blank]",
     }
   },
   onStart: async function ({ api, args, message, event, threadsData, usersData }) {
@@ -89,14 +88,7 @@ module.exports = {
     fs.removeSync(pathAvt2);
 
     return api.sendMessage({
-      body: `╔════════════════╗
-║   🙈 Congratulation 💋🍒 
-║
-║          ${name1}
-║          ${name2}
-║ love percentage ${randomRate}%
-║
-╚════════════════╝`,
+      body: `『💗』Congratulations ${name1}『💗』\n『❤️』Looks like your destiny brought you together with ${name2}『❤️』\n『🔗』Your link percentage is ${randomRate}%『🔗』`,
       mentions: [
         { tag: `${name1}`, id: id1 },
         { tag: `${name2}`, id: id2 }
