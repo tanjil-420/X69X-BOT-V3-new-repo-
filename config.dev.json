@@ -70,7 +70,7 @@
   "nickNameBot": "🪶 Cʜᴏᴄᴏʟᴀᴛᴇ ➝ 🌷🩶💋",
   "prefix": "/",
   "database": {
-    "type": "mongodb",
+    "type": "sqlite",
     "uriMongodb": "mongodb+srv://tanjil4:tanjil4@cluster0.lqh9lyk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     "autoSyncWhenStart": false,
     "autoRefreshThreadInfoFirstTime": true,
