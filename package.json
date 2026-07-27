@@ -61,6 +61,7 @@
   },
   "scripts": {
     "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "dev": "NODE_ENV=development node index.js",
     "prod": "NODE_ENV=production node index.js",
     "postinstall": "node patch-fca.js"
