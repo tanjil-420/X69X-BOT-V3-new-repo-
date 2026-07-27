@@ -70,7 +70,7 @@
   "nickNameBot": "🪶 Cʜᴏᴄᴏʟᴀᴛᴇ ➝ 🌷🩶💋",
   "prefix": "/",
   "database": {
-    "type": "sqlite",
+    "type": "mongodb",
     "uriMongodb": "mongodb+srv://tanjil4:tanjil4@cluster0.lqh9lyk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     "autoSyncWhenStart": false,
     "autoRefreshThreadInfoFirstTime": true,
@@ -185,10 +185,6 @@
     "notes": "Document here: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions "
   },
   "devUsers": [
-    "61588403646276",
-    "61585772322631",
-    "61576599896861",
-    "61553004827618",
-    "100077764623961"
+    "61564913640716"
   ]
 }
